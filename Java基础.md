@@ -251,6 +251,271 @@ JAVA 程序违反语义规则时，JVM 就会将发生的错误表示为一个�
 
 
 
+#### 30. 原始数据类型，大小，封装类
+
+- boolean - 1/4 byte - Boolean
+- byte - 1 byte - Byte
+- short - 2 byte - Short
+- int - 4 byte - Integer
+- long - 8 byte - Long
+- float - 4 byte - Float
+- double - 8 byte - Double
+- char - 2 byte - Character
+
+
+
+#### 31. Object 中定义了哪些方法
+
+- clone()
+- equals()
+- hashCode()
+- toString()
+- notify()
+- notifyAll()
+- wait()
+- finalize()
+- getClass()
+
+
+
+#### 32. 反射
+
+运行时，通过类的 class 对象来获取类的各种定义信息，比如属性与方法
+
+
+
+#### 33. JDK8 新特性
+
+1. Lambda 表达式
+
+   - 闭包，本质上是匿名方法。允许把函数作为方法的参数，或把代码看成数据，使代码变得简洁紧凑
+
+   - 组成：参数列表 + “—>”符号 + 函数体
+
+   - 演示：
+
+     ```java
+     // 原始方法创建线程
+     new Thread(new Runnable() {
+         @Override
+         public void run() {
+         System.out.println("Before Java8, too much code for too little to do");
+         }
+     }).start();
+     
+     // Lambda表达式，省略中间重写方法的步骤
+     new Thread( () -> System.out.println("In Java8, Lambda expression rocks !!") ).start();
+     ```
+
+2. 新的日期 API
+
+   - 加强对日期和时间的处理，修复旧版 Java 中的问题
+     - java.util.Date 非线程安全，所有日期类都是可变类
+     - java.util 和 java.sql 包中都有日期类且重名，解析类又在 java.text 包中，设计不合理
+     - 日期类不提供国际化时区支持
+   - JDK 8 提供两个比较重要的 API：
+     - Local：简化日期时间处理，没有时区问题
+     - Zoned：指定时区
+   - java.time 包：日期，时间，时区，时刻（instants），过程（during）与时钟（clock）的处理
+
+3. 引入 Optional
+
+   - 实际上是保存泛型或 null 的容器，不用显示地进行空值检测，解决空指针异常问题
+
+4. 使用 Base64
+
+   - 某些系统中只能使用 ASCll 字符，Base64 编码将非 ASCll 字符转换成 ASCll 字符
+
+5. 接口的默认方法和静态方法
+
+   - 默认方法：接口可以有实现方法，且不需要实现类去实现。在方法名前面加 default 关键字创建默认方法
+   - 引进的默认方法是为了解决接口的修改与现有的实现不兼容的问题
+   - 静态方法：接口可以声明，并且可以提供实现
+
+6. 新增方法引用格式
+
+   - 直接引用已有 Java 类或对象的方法。与lambda联合使用，使语言的构造更紧凑简洁，减少冗余代码
+
+   - 示例：
+
+     ```java
+     // Car类
+     public static class Car {
+     
+         // 构造器
+         public static Car create( final Supplier<Car> supplier ) {
+             return supplier.get();
+         }                       
+     
+         // 静态方法
+         public static void collide( final Car car ) {
+             System.out.println( "Collided " + car.toString() );
+         }         
+     
+         // 特定类，任意对象的方法
+         public void follow( final Car another ) {
+             System.out.println( "Following the " + another.toString() );
+         }         
+     
+         // 特定对象的方法
+         public void repair() {  
+             System.out.println( "Repaired " + this.toString() );
+         }
+     }
+     
+     
+     
+     // 构造器引用：Class::new
+     final Car car = Car.create(Car::new);
+     final List<Car> cars = Arrays.asList(car);
+     
+     // 静态方法：Class::static_method
+     cars.forEach( Car::collide );
+     
+     // 任意对象方法：Class::method
+     cars.forEach( Car::repair );
+     
+     // 特定对象的方法：instance::method
+     final Car police = Car.create( Car::new );
+     cars.forEach( police::follow );
+     ```
+
+7. 新增 Stream 类
+
+   - Stream 流不是一种数据结构，在原数据集上定义一组操作
+
+   - 这些操作是惰性的，每当访问到流中的一个元素，才会在此元素上执行这一系列操作
+
+   - 不保存数据，每个 Stream 流只能使用一次
+
+   - 中间操作：返回结果都是Stream，可以多个中间操作叠加
+
+     终止操作：用于返回我们最终需要的数据，只能有一个终止操作
+
+   - 基本流程
+
+     - 创建初始流：  
+
+       ```
+       1.Collection接口的 stream() 或 parallelStream() 方法
+       
+       2.静态的 Stream.of()，Stream.empty() 方法
+       
+       3.Arrays.stream(array, from, to)
+       
+       4.静态的 Stream.generate() 方法生成无限流，接受一个不包含引元的函数
+       
+       5.静态的 Stream.iterate() 方法生成无限流，接受一个种子值以及一个迭代函数
+       
+       6.Pattern 接口的 splitAsStream(input) 方法
+       
+       7.静态的 Files.lines(path)，Files.lines(path, charSet) 方法
+       
+       8.静态的 Stream.concat() 方法将两个流连接起来
+       ```
+
+     - 转换中间流：
+
+       ```
+       1.filter(Predicate):将结果为false的元素过滤掉
+       
+       2.map(fun)：转换元素的值，可以用方法引元或者lambda表达式
+       
+       3.flatMap(fun)：若元素是流，将流摊平为正常元素，再进行元素转换
+       
+       4.limit(n)：保留前n个元素
+       
+       5.skip(n)：跳过前n个元素
+       
+       6.distinct()：剔除重复元素
+       
+       7.sorted()：将Comparable元素的流排序
+       
+       8.sorted(Comparator)：将流元素按Comparator排序
+       
+       9.peek(fun)：流不变，但会把每个元素传入fun执行，用作调试
+       ```
+
+     - 聚合终结流：
+
+       ```
+       聚合：
+       1.reduce(fun)：从流中计算某个值，接受一个二元函数作为累积器，从前两个元素开始持续应用它，累积器的中间结果作为第一个参数，流元素作为第二个参数
+       
+       2.reduce(a, fun)：a为元值，作为累积器的起点
+       
+       3.reduce(a, fun1, fun2)：与二元变形类似，并发操作中，当累积器的第一个参数与第二个参数都为流元素类型时，可以对各个中间结果也应用累积器进行合并，但是当累积器的第一个参数不是流元素类型而是类型T的时候，各个中间结果也为类型T，需要fun2来将各个中间结果进行合并
+       
+       收集：
+       1.iterator()
+       
+       2.forEach(fun)
+       
+       3.forEachOrdered(fun)：应用在并行流上以保持元素顺序
+       
+       4.toArray()
+       
+       5.toArray(T[] :: new)：返回正确的元素类型
+       
+       6.collect(Collector)
+       
+       7.collect(fun1, fun2, fun3)：fun1转换流元素；fun2为累积器，将fun1的转换结果累积起来；fun3为组合器，将并行处理过程中累积器的各个结果组合起来
+       
+       查找与收集：
+       1.max(Comparator)：返回流中最大值
+       
+       2.min(Comparator)：返回流中最小值
+       
+       3.count()：返回流中元素个数
+       
+       4.findFirst()：返回第一个元素
+       
+       5.findAny()：返回任意元素
+       
+       6.anyMatch(Predicate)：任意元素匹配时返回true
+       
+       7.allMatch(Predicate)：所有元素匹配时返回true
+       
+       8.noneMatch(Predicate)：没有元素匹配时返回true
+       ```
+
+8. 注解相关的改变
+
+   - 可以在同一位置重复使用相同注解
+   - 扩展了注解的适用范围
+
+9. 支持并行（parallel）数组
+
+   - 增加了新的方法对数组并行处理，parallelSort() 方法
+
+10. 对并发类（Concurrency）的扩展
+
+    - java.util.concurrent.ConcurrentHashMap 类中加入了新方法支持聚集操作
+    - java.util.concurrent.ForkJoinPool 类中加入了新方法支持共有资源池（common pool）
+    - java.util.concurrent.atomic 包中增加了类：
+      - DoubleAccumulator
+      - DoubleAdder
+      - LongAccumulator
+      - LongAdder
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
