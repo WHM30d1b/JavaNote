@@ -1,3 +1,26 @@
+## 安装配置
+
+- 安装
+
+  - Git Bash：Linux命令行
+  - Git CMD：Windows风格命令行
+  - Git GUI：图形化界面
+
+- 查看配置
+
+  ```shell
+  git config -l
+  git config --system --list # 系统配置
+  git config --global --list # 全局配置，用户名和邮箱必须要配置
+  
+  ```
+
+  
+
+
+
+
+
 ## 基础指令
 
 Git版本
@@ -99,19 +122,49 @@ git status [-s:精简输出]
 
 
 
-## 工作区 暂存区 版本库
+## 工作区 暂存区 版本库 远程库
 
-工作区 add 到暂存区
+- Workspace    |git add files|    Stage(Index)
 
-暂存区(index) commit 到版本库(master/HEAD)
+  ```shell
+  git add . # 添加所有文件到暂存区
+  ```
 
-reset HEAD 用工作区目录树重写暂存区目录树
+- Stage(Index)    |git commit|    Repository
 
-rm --cached <file> 删除暂存区文件
+  ```shell
+  git commit -m "xxx" # 提交暂存区内容到本地仓库
+  ```
 
-checkout . / -- <file> 工作区文件被暂存区文件覆盖
+- Repository    |git push|    Remote Directory
 
-checkout HEAD . / <file> 版本库master中的文件覆盖暂存区和工作区文件
+
+
+
+
+- Remote Directory    |git fetch/clone|    Repository
+
+  ```shell
+  git clone remoteurl.git # 克隆到本地路径
+  ```
+
+- Repository    |git reset|    Stage(Index)
+
+- Stage(Index)    |git checkout|    Workspace
+
+- Remote Directory    |git pull|    Workspace
+
+
+
+被Git管理的文件有四种状态：未跟踪(Untracked)，未修改(Unmodified)，已修改(modified)，已暂存(staged)
+
+```shell
+git status # 查看文件状态
+```
+
+
+
+
 
 
 
